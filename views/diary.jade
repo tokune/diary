@@ -1,0 +1,13 @@
+extends layout
+block head
+  link(href="/css/diary.css", rel="stylesheet")
+  
+block body
+  #content
+    h1 !{diary.title}
+    - var time = diary.date.getFullYear()+"/"+(diary.date.getMonth()+1)+"/"+diary.date.getDate();
+    span !{time}
+    span
+      a(href="/diary/"+diary.diary_id+"/edit/") 修改
+    #body
+      != diary.content

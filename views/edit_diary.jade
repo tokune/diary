@@ -1,0 +1,216 @@
+extends layout
+block head
+    link(href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css", rel="stylesheet")
+    link(href="/css/diary.css", rel="stylesheet")
+    script(src="/js/bootstrap-wysiwyg.js")
+    script(src="https://mindmup.s3.amazonaws.com/lib/jquery.hotkeys.js")
+  
+block body
+    .overlay(style="display:none;")
+    #content
+      form(role="form")
+        .form-group
+          label(for="titleInput") 标题
+          input#titleInput.form-control(type="text", placeholder="请输入标题", value="#{diary.title || ''}")
+      label 内容
+      .btn-toolbar(data-role='editor-toolbar', data-target='#editor')
+          .btn-group
+              a.btn.dropdown-toggle(data-toggle='dropdown', title='', data-original-title='Font')
+                i.icon-font
+                b.caret
+              ul.dropdown-menu
+                li
+                  a(data-edit='fontName Serif', style='font-family: \'Serif\';') Serif
+                li
+                  a(data-edit='fontName Sans', style='font-family: \'Sans\';') Sans
+                li
+                  a(data-edit='fontName Arial', style='font-family: \'Arial\';') Arial
+                li
+                  a(data-edit='fontName Arial Black', style='font-family: \'Arial Black\';') Arial Black
+                li
+                  a(data-edit='fontName Courier', style='font-family: \'Courier\';') Courier
+                li
+                  a(data-edit='fontName Courier New', style='font-family: \'Courier New\';') Courier New
+                li
+                  a(data-edit='fontName Comic Sans MS', style='font-family: \'Comic Sans MS\';') Comic Sans MS
+                li
+                  a(data-edit='fontName Helvetica', style='font-family: \'Helvetica\';') Helvetica
+                li
+                  a(data-edit='fontName Impact', style='font-family: \'Impact\';') Impact
+                li
+                  a(data-edit='fontName Lucida Grande', style='font-family: \'Lucida Grande\';') Lucida Grande
+                li
+                  a(data-edit='fontName Lucida Sans', style='font-family: \'Lucida Sans\';') Lucida Sans
+                li
+                  a(data-edit='fontName Tahoma', style='font-family: \'Tahoma\';') Tahoma
+                li
+                  a(data-edit='fontName Times', style='font-family: \'Times\';') Times
+                li
+                  a(data-edit='fontName Times New Roman', style='font-family: \'Times New Roman\';') Times New Roman
+                li
+                  a(data-edit='fontName Verdana', style='font-family: \'Verdana\';') Verdana
+            .btn-group
+              a.btn.dropdown-toggle(data-toggle='dropdown', title='', data-original-title='Font Size')
+                i.icon-text-height
+                b.caret
+              ul.dropdown-menu
+                li
+                  a(data-edit='fontSize 5')
+                    font(size='5') Huge
+                li
+                  a(data-edit='fontSize 3')
+                    font(size='3') Normal
+                li
+                  a(data-edit='fontSize 1')
+                    font(size='1') Small
+            .btn-group
+              a.btn(data-edit='bold', title='', data-original-title='Bold (Ctrl/Cmd+B)')
+                i.icon-bold
+              a.btn(data-edit='italic', title='', data-original-title='Italic (Ctrl/Cmd+I)')
+                i.icon-italic
+              a.btn(data-edit='strikethrough', title='', data-original-title='Strikethrough')
+                i.icon-strikethrough
+              a.btn(data-edit='underline', title='', data-original-title='Underline (Ctrl/Cmd+U)')
+                i.icon-underline
+            .btn-group
+              a.btn(data-edit='insertunorderedlist', title='', data-original-title='Bullet list')
+                i.icon-list-ul
+              a.btn(data-edit='insertorderedlist', title='', data-original-title='Number list')
+                i.icon-list-ol
+              a.btn(data-edit='outdent', title='', data-original-title='Reduce indent (Shift+Tab)')
+                i.icon-indent-left
+              a.btn(data-edit='indent', title='', data-original-title='Indent (Tab)')
+                i.icon-indent-right
+            .btn-group
+              a.btn.btn-info(data-edit='justifyleft', title='', data-original-title='Align Left (Ctrl/Cmd+L)')
+                i.icon-align-left
+              a.btn(data-edit='justifycenter', title='', data-original-title='Center (Ctrl/Cmd+E)')
+                i.icon-align-center
+              a.btn(data-edit='justifyright', title='', data-original-title='Align Right (Ctrl/Cmd+R)')
+                i.icon-align-right
+              a.btn(data-edit='justifyfull', title='', data-original-title='Justify (Ctrl/Cmd+J)')
+                i.icon-align-justify
+            .btn-group
+              a.btn.dropdown-toggle(data-toggle='dropdown', title='', data-original-title='Hyperlink')
+                i.icon-link
+              .dropdown-menu.input-append
+                input.span2(placeholder='URL', type='text', data-edit='createLink')
+                button.btn(type='button') Add
+              a.btn(data-edit='unlink', title='', data-original-title='Remove Hyperlink')
+                i.icon-cut
+            .btn-group
+              a#pictureBtn.btn(title='', data-original-title='Insert picture (or just drag & drop)')
+                i.icon-picture
+              input(type='file', data-role='magic-overlay', data-target='#pictureBtn', data-edit='insertImage', style='opacity: 0; position: absolute; top: 0px; left: 0px; width: 41px; height: 30px;')
+            .btn-group
+              a.btn(data-edit='undo', title='', data-original-title='Undo (Ctrl/Cmd+Z)')
+                i.icon-undo
+              a.btn(data-edit='redo', title='', data-original-title='Redo (Ctrl/Cmd+Y)')
+                i.icon-repeat
+
+      #editor 
+        != diary.content
+      .btns
+        #diarySubmit.btn.btn-primary 提交
+    script.
+      $(function(){
+          function initToolbarBootstrapBindings() {
+            var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier', 
+                  'Courier New', 'Comic Sans MS', 'Helvetica', 'Impact', 'Lucida Grande', 'Lucida Sans', 'Tahoma', 'Times',
+                  'Times New Roman', 'Verdana'],
+                  fontTarget = $('[title=Font]').siblings('.dropdown-menu');
+            $.each(fonts, function (idx, fontName) {
+                fontTarget.append($('<li><a data-edit="fontName ' + fontName +'" style="font-family:\''+ fontName +'\'">'+fontName + '</a></li>'));
+            });
+            $('a[title]').tooltip({container:'body'});
+            $('.dropdown-menu input').click(function() {return false;})
+              .change(function () {$(this).parent('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');})
+              .keydown('esc', function () {this.value='';$(this).change();});
+      
+            $('[data-role=magic-overlay]').each(function () { 
+              var overlay = $(this), target = $(overlay.data('target')); 
+              overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
+            });
+          };
+          initToolbarBootstrapBindings();  
+          $('#editor').wysiwyg();
+          window.prettyPrint && prettyPrint();
+
+          $('#diarySubmit').click(function(){
+            uploadImages(function(finish){
+              if (finish) {
+                alert("图片上传完成");
+              }
+
+              if(!$("#titleInput").val()) {
+                alert("标题不能为空");
+                return false;
+              }
+              var data = { title:$("#titleInput").val(), content: $('#editor').html() };
+              if (window.location.pathname.indexOf("edit") > -1) {
+                var diary_id = window.location.pathname.replace("/diary/","");
+                diary_id = diary_id.replace("/edit/","");
+                data.diary_id = diary_id;
+              }
+              $.post("/diary/", data)
+                .done(function(resp) {
+                  setTimeout(function(){window.location = "/diary/" + resp.diary_id}, 5000);
+                  if (resp.action == "updated") return alert("更新成功");
+                  if (resp.action == "saved") return alert("提交成功");
+                });
+              });
+          });
+
+          function uploadImages(callback) {
+            var base_img = $('img');
+            var images = [];
+            for (var i =0; i < base_img.length; i++) {
+              if (base_img[i].src.indexOf("data:") > -1){
+                images.push(base_img[i]); 
+              }
+            }
+            if (images.length === 0) return callback();
+            function batch(){
+              if (images.length === 0) return callback(true);
+              var img = images.pop();
+              uploadImage(img, batch);
+            }
+            batch();
+          }
+
+          function dataURItoBlob(dataURI) {
+              var byteString = atob(dataURI.split(',')[1]);
+           
+              var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+           
+              var ab = new ArrayBuffer(byteString.length);
+              var ia = new Uint8Array(ab);
+              for (var i = 0; i < byteString.length; i++) {
+                  ia[i] = byteString.charCodeAt(i);
+              }   
+           
+              var blob = new Blob([ia],{ type: mimeString});
+              return blob;
+          }
+          
+          function uploadImage(img, callback){
+            var blob = dataURItoBlob(img.src);
+            var piHost = 'http://tupi.sinaapp.com/';
+            
+            var fd=new FormData();
+            fd.append("file0", blob);
+            
+            $.ajax({
+              url: piHost,
+              data: fd,
+              processData: false,
+              contentType: false,
+              type: 'POST',
+              success: function(data){
+                if(data === "error") return callback("图片服务器出错");
+                img.src = piHost + data;
+                callback();
+              }
+            });
+          }
+        });

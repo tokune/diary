@@ -1,0 +1,13 @@
+extends layout
+block head
+  link(href="/css/diary.css", rel="stylesheet")
+  
+block body
+  #content
+    for diary in diaries
+      .diary
+        a.title(href="/diary/"+diary.diary_id, target="blank") 
+          != diary.title
+        span 
+          - var time = diary.date.getFullYear()+"/"+(diary.date.getMonth()+1)+"/"+diary.date.getDate();
+          != time
