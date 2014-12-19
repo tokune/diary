@@ -5,6 +5,7 @@ block head
 block body
   #content
     h1 !{diary.title}
+    - diary.date = new Date((diary.date.getTime() / 1000 + 8 * 60 * 60)*1000);
     - var time = diary.date.getFullYear()+"/"+(diary.date.getMonth()+1)+"/"+diary.date.getDate();
     span !{time}
     span
